@@ -1,6 +1,6 @@
 # Retail Credit Risk Monitoring using Age-Period-Cohort (APC)
 
-Retail delinquency rates do not rise for a single reason.
+Retail delinquency rates do not move for a single reason.  
 They are jointly shaped by portfolio seasoning, origination vintage quality, and changes in the broader economic environment.
 
 This project applies an Age-Period-Cohort (APC) framework to decompose delinquency dynamics into three time dimensions and to isolate the **Period effect** as a practical monitoring signal for portfolio risk.
@@ -17,7 +17,7 @@ A higher delinquency rate may reflect:
 - weaker credit quality from specific origination vintages
 - deterioration in the external macro or credit environment
 
-If these effects are not separated, headline delinquency can be misleading.
+If these effects are not separated, headline delinquency can be misleading.  
 This makes it difficult to distinguish genuine risk deterioration from portfolio-composition effects.
 
 ---
@@ -116,7 +116,7 @@ R/
 
 ## 8. Practical Relevance
 
-This is not just a modeling exercise.
+This is not just a modeling exercise.  
 It is closer to a practical risk-monitoring framework designed to answer a real business question:
 
 **Is portfolio risk genuinely worsening, or is the observed delinquency change being driven by structural composition effects?**

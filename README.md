@@ -1,94 +1,170 @@
 # Retail Credit Risk Monitoring using Age-Period-Cohort (APC)
 
-가계대출 연체율은 단순히 “경기가 나빠져서” 올라가는 것이 아니라,
-포트폴리오의 경과월(MOB), 취급 시점의 빈티지 특성, 월별 거시환경 변화가 함께 섞여 나타납니다.
+Retail delinquency rates do not rise for a single reason.
+They are jointly shaped by portfolio seasoning, origination vintage quality, and changes in the broader economic environment.
 
-이 프로젝트는 Age-Period-Cohort(APC) 모델을 활용해 연체율을 세 가지 시간축으로 분해하고,
-그중 거시환경 변화에 가까운 `Period effect`를 별도 모니터링 지표로 활용하기 위한 분석입니다.
-
----
-
-## 1. Business Question
-
-가계대출 연체율 상승이 발생했을 때, 아래를 구분하는 것이 핵심입니다.
-
-- 포트폴리오 숙성(Seasoning) 영향인가?
-- 특정 취급 시점(Vintage/Cohort)의 질적 차이인가?
-- 시장 전반의 경기/신용환경 변화인가?
-
-단순 연체율만 보면 이 세 요인이 섞여 있어,
-실제 리스크가 커진 것인지 구조적 착시인지 판단하기 어렵습니다.
+This project applies an Age-Period-Cohort (APC) framework to decompose delinquency dynamics into three time dimensions and to isolate the **Period effect** as a practical monitoring signal for portfolio risk.
 
 ---
 
-## 2. Why APC?
+## 1. Business Context
 
-APC 모델은 연체율 변화를 다음 세 축으로 분해합니다.
+When delinquency rises, the key question is not simply **whether** it increased, but **why**.
 
-- **Age**: 대출 실행 후 경과 개월 수(MOB)
-- **Period**: 연체율이 관측된 시점
-- **Cohort**: 대출이 취급된 시점
+A higher delinquency rate may reflect:
 
-이렇게 분해하면,
-- 시간이 지나면서 자연스럽게 나타나는 숙성 효과와
-- 특정 빈티지의 특성,
-- 그리고 시장 전반의 공통 충격
+- natural seasoning as accounts age
+- weaker credit quality from specific origination vintages
+- deterioration in the external macro or credit environment
 
-을 구분해서 볼 수 있습니다.
-
-이 프로젝트의 핵심은 `Period effect`를 리스크 모니터링 지표로 해석하는 데 있습니다.
+If these effects are not separated, headline delinquency can be misleading.
+This makes it difficult to distinguish genuine risk deterioration from portfolio-composition effects.
 
 ---
 
-## 3. Data
+## 2. Objective
 
-분석 단위는 월별 집계 데이터이며, 주요 구조는 다음과 같습니다.
+The objective of this project is to build a monitoring framework that can:
 
-- 마감년월
-- 대출년월
-- MOB (months on books)
-- 유지 건수 / 잔액
-- 연체 건수 / 연체 잔액
-- 상각 반영 건수 / 금액
+- decompose delinquency movements into structural components
+- isolate the part most closely associated with market-wide conditions
+- support earlier and more interpretable risk diagnosis than a simple delinquency-rate trend
 
-추가적으로 period effect 예측을 위해 다음과 같은 외부/보조 지표를 결합했습니다.
-
-- CB 기반 저신용/다중채무/잠재부실 관련 비중
-- 연체 전이율
-- KB 전세지수
-- 한국은행 거시지표
-- 이동평균 및 추세 파생변수
+In practice, the focus was placed on using the **Period effect** as a monitoring indicator for external risk conditions.
 
 ---
 
-## 4. Methodology
+## 3. Why APC?
+
+The APC framework separates delinquency behavior into three dimensions:
+
+- **Age**: months on books (MOB) after origination
+- **Period**: calendar time when delinquency is observed
+- **Cohort**: origination period (vintage)
+
+This decomposition helps distinguish:
+
+- seasoning effects from portfolio aging
+- vintage effects from differences in underwriting or borrower mix
+- common time effects that may reflect macroeconomic or market stress
+
+For risk monitoring purposes, this structure is useful because it turns a single blended delinquency number into a more interpretable signal.
+
+---
+
+## 4. Data Structure
+
+The core dataset is organized at a monthly aggregated level, including variables such as:
+
+- observation month
+- origination month
+- months on books (MOB)
+- active account / balance measures
+- delinquent account / balance measures
+- charge-off related counts and balances
+
+To forecast the Period effect, the project also incorporates auxiliary indicators such as:
+
+- CB-based risk composition measures
+- delinquency transition metrics
+- KB jeonse index
+- Bank of Korea macroeconomic indicators
+- moving-average and trend-derived variables
+
+---
+
+## 5. Methodology
 
 ### Step 1. Raw data aggregation
-월마감 기준 포트폴리오를 `마감년월 × 대출년월 × MOB` 단위로 집계합니다.
+Portfolio performance data is aggregated by `observation month × origination month × MOB`.
 
 ### Step 2. APC model fitting
-Poisson 기반 APC 모델을 적합해
+A Poisson-based APC model is fitted to separate:
+
 - Age effect
 - Period effect
 - Cohort effect
 
-를 분리합니다.
-
 ### Step 3. Period effect forecasting
-분리된 Period effect를 타깃으로 두고,
-거시/CB/전이율 변수를 이용해 선행 예측 모델을 구축합니다.
+The extracted Period effect is used as a target variable, with macroeconomic and credit-related indicators incorporated as predictors.
 
-### Step 4. Monitoring use
-예측된 period risk level을 통해
-단순 연체율보다 앞서 시장성 리스크 신호를 점검할 수 있도록 설계했습니다.
+### Step 4. Monitoring application
+The resulting framework is intended to support ongoing monitoring by providing a risk signal that is more interpretable than the raw delinquency rate alone.
 
 ---
 
-## 5. Repo Structure
+## 6. Repository Structure
 
 ```text
 R/
-├─ 01_rawdata.R        # 월마감 대출 포트폴리오 집계
-├─ 02_apc_fit.R        # APC 적합 및 Age/Period/Cohort 효과 산출
-├─ 03_forecast.R       # Period effect 예측용 변수 생성 및 예측
-└─ fcst_model_refit.R  # 예측모형 재학습
+├─ 01_rawdata.R        # Monthly portfolio aggregation
+├─ 02_apc_fit.R        # APC fitting and effect extraction
+├─ 03_forecast.R       # Period effect forecasting pipeline
+└─ fcst_model_refit.R  # Forecast model refit
+```
+
+---
+
+## 7. Key Takeaways
+
+- Delinquency trends should not be interpreted at face value.
+- APC decomposition is useful for separating seasoning, vintage, and macro-related influences.
+- The **Period effect** can serve as a more interpretable monitoring signal for external risk conditions.
+- This approach is especially helpful when portfolio growth, runoff, or mix shift distorts the headline delinquency rate.
+
+---
+
+## 8. Practical Relevance
+
+This is not just a modeling exercise.
+It is closer to a practical risk-monitoring framework designed to answer a real business question:
+
+**Is portfolio risk genuinely worsening, or is the observed delinquency change being driven by structural composition effects?**
+
+That distinction matters in areas such as:
+
+- monthly risk reporting
+- early warning monitoring
+- portfolio-quality diagnosis
+- stress testing support
+- management communication on the drivers of delinquency
+
+---
+
+## 9. Reproducibility Notes
+
+This repository is a simplified public version of an internal risk-monitoring project.
+
+Because the original work used internal portfolio data and internal connection logic, the public version does not include:
+
+- source data
+- internal database access logic
+- some environment-specific execution details
+
+The repository is therefore intended to communicate:
+
+- the analytical structure
+- the modeling logic
+- the monitoring concept
+- the practical use case
+
+rather than to provide a fully reproducible end-to-end public pipeline.
+
+---
+
+## 10. Tech Stack
+
+- R
+- tidyverse
+- data.table
+- Epi
+- caret / ranger
+
+---
+
+## 11. Future Improvements
+
+- add synthetic sample data for public reproducibility
+- include example charts for Age / Period / Cohort effects
+- document the interpretation of Period effect in more detail
+- clean environment-specific code for a more portable workflow

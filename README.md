@@ -1,5 +1,9 @@
 # Retail Credit Risk Monitoring using Age-Period-Cohort (APC)
 
+가계대출 연체율을 APC 모형으로 분해해 상승 원인을 살펴본 프로젝트입니다.
+포트폴리오 경과기간, 취급 시점별 특성, 거시환경 영향을 구분해 연체율 변화를 해석할 수 있도록 했습니다.
+실무 리스크 관리에서 활용할 수 있는 모니터링 분석 사례를 정리했습니다.  
+
 Retail delinquency rates do not move for a single reason.  
 They are jointly shaped by portfolio seasoning, origination vintage quality, and changes in the broader economic environment.
 

@@ -53,7 +53,7 @@ This decomposition helps distinguish:
 - common time effects that may reflect macroeconomic or market stress
 
 For risk monitoring purposes, this structure is useful because it turns a single blended delinquency number into a more interpretable signal.
-
+![APC decomposition overview](images/apc_decomposition_overview.png)
 ---
 
 ## 4. Data Structure
